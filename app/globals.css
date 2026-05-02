@@ -1,0 +1,19 @@
+@import "tailwindcss";
+
+/* Mapeia onde o Tailwind deve buscar as classes personalizadas */
+@source "../lib/constants.ts";
+@source "./dashboard/page.tsx";
+
+/* Define o estilo global do corpo do site sem travar o compilador */
+@layer base {
+  body {
+    @apply bg-gray-50 text-gray-900 antialiased;
+  }
+}
+
+/* Estilização básica para os checkboxes ficarem mais bonitos */
+@layer components {
+  input[type="checkbox"] {
+    @apply cursor-pointer transition-all duration-200;
+  }
+}
