@@ -1,9 +1,9 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import { supabase } from '../../lib/supabase';
+import { supabase } from '@/lib/supabase';
 import { useRouter } from 'next/navigation';
-import { generateStudyCycle, formatMinutes, SubjectInput } from '../../utils/generateStudyCycle';
+import { generateStudyCycle, formatMinutes, SubjectInput } from '@/utils/generateStudyCycle';
 import { Trash2, Plus, Clock, BookOpen, LogOut } from 'lucide-react';
 
 export default function DashboardPage() {
@@ -17,8 +17,9 @@ export default function DashboardPage() {
   useEffect(() => {
     const checkUser = async () => {
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) router.push('/login');
-      else {
+      if (!user) {
+        router.push('/auth/login');
+      } else {
         setLoading(false);
         carregarMaterias();
       }
@@ -65,48 +66,62 @@ export default function DashboardPage() {
 
   const ciclo = generateStudyCycle(materias, horasDisponiveis);
 
-  if (loading) return <div style={{height:'100vh', display:'flex', alignItems:'center', justifyContent:'center', fontFamily:'sans-serif'}}>Carregando...</div>;
+  if (loading) {
+    return (
+      <div className="flex h-screen items-center justify-center font-sans bg-slate-50 text-indigo-600 font-bold">
+        Carregando seu plano de estudos...
+      </div>
+    );
+  }
 
   return (
-    <div style={{ backgroundColor: '#f1f5f9', minHeight: '100vh', fontFamily: 'sans-serif', color: '#1e293b' }}>
+    <div className="bg-slate-50 min-h-screen font-sans text-slate-800">
       
       {/* HEADER */}
-      <nav style={{ backgroundColor: '#fff', borderBottom: '1px solid #e2e8f0', padding: '0 20px', height: '64px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'sticky', top: 0 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <div style={{ backgroundColor: '#4f46e5', padding: '6px', borderRadius: '8px', color: '#fff' }}>
+      <nav className="bg-white border-b border-slate-200 px-6 h-16 flex items-center justify-between sticky top-0 z-10">
+        <div className="flex items-center gap-3">
+          <div className="bg-indigo-600 p-2 rounded-lg text-white">
             <BookOpen size={20} />
           </div>
-          <span style={{ fontWeight: 800, fontSize: '1.25rem', letterSpacing: '-0.025em' }}>Enem<span style={{ color: '#4f46e5' }}>Focus</span></span>
+          <span className="font-extrabold text-xl tracking-tight">
+            Enem<span className="text-indigo-600">Focus</span>
+          </span>
         </div>
-        <button onClick={() => supabase.auth.signOut().then(() => router.push('/login'))} style={{ background: 'none', border: 'none', color: '#64748b', fontWeight: 700, fontSize: '0.75rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '5px' }}>
+        <button 
+          onClick={() => supabase.auth.signOut().then(() => router.push('/auth/login'))} 
+          className="text-slate-500 font-bold text-xs flex items-center gap-2 hover:text-red-500 transition-colors"
+        >
           <LogOut size={16} /> SAIR
         </button>
       </nav>
 
-      <main style={{ maxWidth: '1100px', margin: '40px auto', padding: '0 20px' }}>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '30px' }}>
+      <main className="max-w-6xl mx-auto py-10 px-6">
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-8">
           
-          {/* COLUNA ESQUERDA */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-            <div style={{ backgroundColor: '#fff', borderRadius: '16px', padding: '24px', border: '1px solid #e2e8f0', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
-              <h3 style={{ fontSize: '0.75rem', fontWeight: 800, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '20px' }}>Nova Disciplina</h3>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+          {/* COLUNA ESQUERDA - CONFIGURAÇÕES */}
+          <div className="md:col-span-4 space-y-6">
+            <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
+              <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-5">Nova Disciplina</h3>
+              <div className="space-y-4">
                 <input 
-                  style={{ width: '100%', padding: '12px', borderRadius: '10px', border: '1px solid #e2e8f0', backgroundColor: '#f8fafc', fontSize: '14px', outline: 'none' }}
-                  placeholder="Nome da matéria"
+                  className="w-full p-3 rounded-xl border border-slate-200 bg-slate-50 text-sm outline-none focus:ring-2 focus:ring-indigo-500 transition-all"
+                  placeholder="Ex: Matemática, Redação..."
                   value={nomeMateria}
                   onChange={(e) => setNomeMateria(e.target.value)}
                 />
-                <div style={{ display: 'flex', gap: '10px' }}>
-                  <input 
-                    type="number" 
-                    style={{ width: '60px', padding: '12px', borderRadius: '10px', border: '1px solid #e2e8f0', textAlign: 'center', fontWeight: 'bold', color: '#4f46e5' }}
-                    value={pesoMateria}
-                    onChange={(e) => setPesoMateria(Number(e.target.value))}
-                  />
+                <div className="flex gap-3">
+                  <div className="flex flex-col">
+                     <span className="text-[9px] font-bold text-slate-400 mb-1 ml-1">PESO</span>
+                     <input 
+                      type="number" 
+                      className="w-16 p-3 rounded-xl border border-slate-200 text-center font-bold text-indigo-600 outline-none"
+                      value={pesoMateria}
+                      onChange={(e) => setPesoMateria(Number(e.target.value))}
+                    />
+                  </div>
                   <button 
                     onClick={adicionarMateria}
-                    style={{ flex: 1, backgroundColor: '#4f46e5', color: '#fff', border: 'none', borderRadius: '10px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
+                    className="flex-1 mt-5 bg-indigo-600 text-white border-none rounded-xl font-bold hover:bg-indigo-700 transition-all active:scale-95 flex items-center justify-center gap-2"
                   >
                     <Plus size={18} /> Adicionar
                   </button>
@@ -114,46 +129,55 @@ export default function DashboardPage() {
               </div>
             </div>
 
-            <div style={{ backgroundColor: '#0f172a', borderRadius: '16px', padding: '24px', color: '#fff' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '15px' }}>
-                <span style={{ fontSize: '0.75rem', fontWeight: 800, color: '#94a3b8', textTransform: 'uppercase' }}>Carga Horária</span>
-                <Clock size={18} color="#818cf8" />
+            <div className="bg-slate-900 rounded-2xl p-6 text-white shadow-lg">
+              <div className="flex justify-between mb-4">
+                <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Carga Horária</span>
+                <Clock size={18} className="text-indigo-400" />
               </div>
-              <div style={{ fontSize: '2rem', fontWeight: 900 }}>{horasDisponiveis}h <span style={{ fontSize: '0.875rem', color: '#64748b' }}>/dia</span></div>
+              <div className="text-3xl font-black">{horasDisponiveis}h <span className="text-sm text-slate-500">/dia</span></div>
               <input 
                 type="range" min="1" max="12" 
                 value={horasDisponiveis}
                 onChange={(e) => setHorasDisponiveis(Number(e.target.value))}
-                style={{ width: '100%', marginTop: '20px', accentColor: '#4f46e5' }}
+                className="w-full mt-6 accent-indigo-500 cursor-pointer"
               />
+              <p className="text-[10px] text-slate-400 mt-4 leading-relaxed">
+                Ajuste o tempo total que você tem disponível para estudar hoje.
+              </p>
             </div>
           </div>
 
-          {/* COLUNA DIREITA */}
-          <div>
-            <h3 style={{ fontSize: '0.75rem', fontWeight: 800, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '20px', marginLeft: '10px' }}>Ciclo de Estudos</h3>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+          {/* COLUNA DIREITA - O CICLO */}
+          <div className="md:col-span-8">
+            <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-5 ml-2">Ciclo de Estudos Sugerido</h3>
+            <div className="space-y-3">
               {materias.length === 0 ? (
-                <div style={{ textAlign: 'center', padding: '40px', backgroundColor: '#fff', borderRadius: '16px', border: '2px dashed #e2e8f0', color: '#94a3b8' }}>Nenhuma matéria.</div>
+                <div className="text-center py-20 bg-white rounded-2xl border-2 border-dashed border-slate-200 text-slate-400">
+                  <BookOpen size={40} className="mx-auto mb-4 opacity-20" />
+                  <p className="font-medium">Nenhuma matéria adicionada ainda.</p>
+                </div>
               ) : (
                 ciclo.sessions.map((s) => (
-                  <div key={s.id} style={{ backgroundColor: '#fff', padding: '16px 20px', borderRadius: '12px', border: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
-                      <div style={{ width: '40px', height: '40px', backgroundColor: '#f5f3ff', color: '#4f46e5', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold' }}>
+                  <div key={s.id} className="bg-white p-5 rounded-2xl border border-slate-200 flex items-center justify-between hover:shadow-md transition-shadow">
+                    <div className="flex items-center gap-4">
+                      <div className="w-12 h-12 bg-indigo-50 text-indigo-600 rounded-xl flex items-center justify-center font-black text-lg">
                         {s.name.substring(0,2).toUpperCase()}
                       </div>
                       <div>
-                        <div style={{ fontWeight: 800, fontSize: '0.95rem' }}>{s.name}</div>
-                        <div style={{ fontSize: '0.7rem', color: '#94a3b8', fontWeight: 700 }}>PESO {s.weight}</div>
+                        <div className="font-black text-slate-800">{s.name}</div>
+                        <div className="text-[10px] text-slate-400 font-bold uppercase tracking-tighter">Peso {s.weight}</div>
                       </div>
                     </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
-                      <div style={{ textAlign: 'right' }}>
-                        <div style={{ fontWeight: 900, fontSize: '1.25rem' }}>{formatMinutes(s.allocatedMinutes)}</div>
-                        <div style={{ fontSize: '0.65rem', color: '#4f46e5', fontWeight: 800, textTransform: 'uppercase' }}>Duração</div>
+                    <div className="flex items-center gap-6">
+                      <div className="text-right">
+                        <div className="font-black text-2xl text-slate-900">{formatMinutes(s.allocatedMinutes)}</div>
+                        <div className="text-[9px] text-indigo-600 font-black uppercase tracking-widest">Duração</div>
                       </div>
-                      <button onClick={() => excluirMateria(s.id)} style={{ background: 'none', border: 'none', color: '#cbd5e1', cursor: 'pointer' }}>
-                        <Trash2 size={18} />
+                      <button 
+                        onClick={() => excluirMateria(s.id)} 
+                        className="text-slate-300 hover:text-red-400 transition-colors"
+                      >
+                        <Trash2 size={20} />
                       </button>
                     </div>
                   </div>
