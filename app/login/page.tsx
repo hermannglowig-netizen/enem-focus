@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { supabase } from '../../lib/supabase';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { BookOpen, Lock, Mail, ArrowRight } from 'lucide-react';
 
 export default function LoginPage() {
@@ -10,6 +11,7 @@ export default function LoginPage() {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  
   const router = useRouter();
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -17,174 +19,85 @@ export default function LoginPage() {
     setLoading(true);
     setError(null);
 
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    const { error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
 
     if (error) {
-      setError("Credenciais inválidas. Verifique seu e-mail e senha.");
+      setError(error.message);
       setLoading(false);
     } else {
-      router.push('/dashboard');
+      router.push('/dashboard'); // Ajuste aqui para a rota pós-login do seu projeto
     }
   };
 
-  const handleSignUp = async () => {
-    setLoading(true);
-    setError(null);
-    const { error } = await supabase.auth.signUp({ email, password });
-    
-    if (error) setError(error.message);
-    else alert('Verifique seu e-mail para confirmar o cadastro!');
-    
-    setLoading(false);
-  };
-
   return (
-    <div style={{ 
-      backgroundColor: '#f1f5f9', 
-      minHeight: '100vh', 
-      display: 'flex', 
-      alignItems: 'center', 
-      justifyContent: 'center', 
-      fontFamily: 'sans-serif',
-      padding: '20px'
-    }}>
-      <div style={{ 
-        backgroundColor: '#fff', 
-        width: '100%', 
-        maxWidth: '400px', 
-        borderRadius: '24px', 
-        padding: '40px', 
-        boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
-        border: '1px solid #e2e8f0'
-      }}>
+    <div className="min-h-screen bg-slate-100 flex items-center justify-center p-4 font-sans">
+      <div className="bg-white rounded-2xl shadow-xl w-full max-w-md p-8 flex flex-col items-center">
         
-        {/* LOGO */}
-        <div style={{ textAlign: 'center', marginBottom: '32px' }}>
-          <div style={{ 
-            backgroundColor: '#4f46e5', 
-            width: '48px', 
-            height: '48px', 
-            borderRadius: '12px', 
-            display: 'flex', 
-            alignItems: 'center', 
-            justifyContent: 'center', 
-            color: '#fff',
-            margin: '0 auto 16px'
-          }}>
-            <BookOpen size={28} />
-          </div>
-          <h1 style={{ fontWeight: 800, fontSize: '1.5rem', color: '#1e293b', margin: 0 }}>
-            Enem<span style={{ color: '#4f46e5' }}>Focus</span>
-          </h1>
-          <p style={{ color: '#64748b', fontSize: '0.875rem', marginTop: '8px' }}>
-            Sua aprovação começa com organização.
-          </p>
+        {/* Logo / Header */}
+        <div className="flex items-center justify-center bg-indigo-600 text-white rounded-xl p-3 mb-3">
+          <BookOpen className="w-7 h-7" />
         </div>
+        
+        <h1 className="text-2xl font-bold text-gray-900 mb-1">
+          Enem<span className="text-indigo-600">Focus</span>
+        </h1>
+        <p className="text-sm text-gray-500 mb-6 text-center">
+          Sua aprovação começa com organização.
+        </p>
 
+        {/* Mensagem de Erro (se houver) */}
         {error && (
-          <div style={{ 
-            backgroundColor: '#fef2f2', 
-            color: '#b91c1c', 
-            padding: '12px', 
-            borderRadius: '10px', 
-            fontSize: '0.8rem', 
-            fontWeight: 600, 
-            marginBottom: '20px',
-            textAlign: 'center',
-            border: '1px solid #fee2e2'
-          }}>
+          <div className="w-full bg-red-50 text-red-600 text-xs p-3 rounded-lg mb-4 text-center border border-red-200">
             {error}
           </div>
         )}
 
-        <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-          {/* CAMPO EMAIL */}
-          <div style={{ position: 'relative' }}>
-            <Mail size={18} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#94a3b8' }} />
-            <input 
+        {/* Formulário de Login */}
+        <form onSubmit={handleLogin} className="w-full space-y-4">
+          <div className="relative">
+            <Mail className="w-5 h-5 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
+            <input
               type="email"
               placeholder="Seu e-mail"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              style={{ 
-                width: '100%', 
-                padding: '12px 12px 12px 40px', 
-                borderRadius: '12px', 
-                border: '1px solid #e2e8f0', 
-                backgroundColor: '#f8fafc',
-                fontSize: '0.9rem',
-                outline: 'none',
-                boxSizing: 'border-box'
-              }}
+              className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-lg text-sm outline-none focus:border-indigo-600 focus:ring-1 focus:ring-indigo-600 transition-all text-gray-800"
             />
           </div>
 
-          {/* CAMPO SENHA */}
-          <div style={{ position: 'relative' }}>
-            <Lock size={18} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#94a3b8' }} />
-            <input 
+          <div className="relative">
+            <Lock className="w-5 h-5 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
+            <input
               type="password"
               placeholder="Sua senha"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              style={{ 
-                width: '100%', 
-                padding: '12px 12px 12px 40px', 
-                borderRadius: '12px', 
-                border: '1px solid #e2e8f0', 
-                backgroundColor: '#f8fafc',
-                fontSize: '0.9rem',
-                outline: 'none',
-                boxSizing: 'border-box'
-              }}
+              className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-lg text-sm outline-none focus:border-indigo-600 focus:ring-1 focus:ring-indigo-600 transition-all text-gray-800"
             />
           </div>
 
-          <button 
-            type="submit" 
+          <button
+            type="submit"
             disabled={loading}
-            style={{ 
-              backgroundColor: '#4f46e5', 
-              color: '#fff', 
-              border: 'none', 
-              padding: '14px', 
-              borderRadius: '12px', 
-              fontWeight: 700, 
-              fontSize: '0.95rem',
-              cursor: loading ? 'not-allowed' : 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '8px',
-              transition: 'all 0.2s',
-              marginTop: '8px'
-            }}
+            className="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-lg text-sm shadow-md transition-all flex items-center justify-center gap-2 disabled:opacity-50"
           >
-            {loading ? 'Entrando...' : 'Acessar Painel'} 
-            {!loading && <ArrowRight size={18} />}
+            {loading ? "Acessando..." : "Acessar Painel"}
+            {!loading && <ArrowRight className="w-4 h-4" />}
           </button>
         </form>
 
-        <div style={{ textAlign: 'center', marginTop: '24px' }}>
-          <p style={{ fontSize: '0.85rem', color: '#64748b' }}>
-            Não tem uma conta?{' '}
-            <button 
-              onClick={handleSignUp}
-              style={{ 
-                background: 'none', 
-                border: 'none', 
-                color: '#4f46e5', 
-                fontWeight: 700, 
-                cursor: 'pointer',
-                padding: 0
-              }}
-            >
-              Criar conta grátis
-            </button>
-          </p>
-        </div>
+        {/* Link para a página de escolha de plano */}
+        <p className="text-xs text-gray-500 mt-6 text-center">
+          Não tem uma conta?{" "}
+          <Link href="/pricing" className="text-indigo-600 font-semibold hover:underline">
+            Criar conta grátis
+          </Link>
+        </p>
 
       </div>
     </div>
