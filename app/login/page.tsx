@@ -4,101 +4,100 @@ import { useState } from 'react';
 import { supabase } from '../../lib/supabase';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { BookOpen, Lock, Mail, ArrowRight } from 'lucide-react';
 
 export default function LoginPage() {
+  const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [loading, setLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  
-  const router = useRouter();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
+    setIsLoading(true);
     setError(null);
 
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
+    try {
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
 
-    if (error) {
-      setError(error.message);
-      setLoading(false);
-    } else {
-      router.push('/dashboard'); // Ajuste aqui para a rota pós-login do seu projeto
+      if (error) {
+        setError(error.message);
+      } else {
+        router.push('/dashboard');
+      }
+    } catch (err) {
+      setError('Ocorreu um erro ao tentar entrar.');
+    } finally {
+      setIsLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-slate-100 flex items-center justify-center p-4 font-sans">
-      <div className="bg-white rounded-2xl shadow-xl w-full max-w-md p-8 flex flex-col items-center">
+    <div className="flex flex-col items-center justify-center min-h-screen bg-slate-50 text-slate-900">
+      <div className="w-full max-w-md p-8 space-y-6 bg-white rounded-2xl shadow-xl border border-slate-200">
         
-        {/* Logo / Header */}
-        <div className="flex items-center justify-center bg-indigo-600 text-white rounded-xl p-3 mb-3">
-          <BookOpen className="w-7 h-7" />
+        <div className="text-center">
+          <h1 className="text-4xl font-extrabold text-indigo-600 tracking-tight">
+            Enem-Focus
+          </h1>
+          <p className="mt-2 text-slate-500 font-medium text-sm">
+            Sua aprovação começa aqui
+          </p>
         </div>
-        
-        <h1 className="text-2xl font-bold text-gray-900 mb-1">
-          Enem<span className="text-indigo-600">Focus</span>
-        </h1>
-        <p className="text-sm text-gray-500 mb-6 text-center">
-          Sua aprovação começa com organização.
-        </p>
 
-        {/* Mensagem de Erro (se houver) */}
         {error && (
-          <div className="w-full bg-red-50 text-red-600 text-xs p-3 rounded-lg mb-4 text-center border border-red-200">
+          <div className="p-3 bg-red-50 border border-red-200 text-red-600 text-xs rounded-lg text-center">
             {error}
           </div>
         )}
 
-        {/* Formulário de Login */}
-        <form onSubmit={handleLogin} className="w-full space-y-4">
-          <div className="relative">
-            <Mail className="w-5 h-5 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
+        <form onSubmit={handleLogin} className="space-y-4">
+          <div>
+            <label className="block text-xs font-semibold text-slate-600 mb-1">E-mail</label>
             <input
               type="email"
-              placeholder="Seu e-mail"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-lg text-sm outline-none focus:border-indigo-600 focus:ring-1 focus:ring-indigo-600 transition-all text-gray-800"
+              placeholder="seu@email.com"
+              className="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm outline-none focus:border-indigo-600 transition-all text-slate-800"
             />
           </div>
 
-          <div className="relative">
-            <Lock className="w-5 h-5 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
+          <div>
+            <label className="block text-xs font-semibold text-slate-600 mb-1">Senha</label>
             <input
               type="password"
-              placeholder="Sua senha"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-lg text-sm outline-none focus:border-indigo-600 focus:ring-1 focus:ring-indigo-600 transition-all text-gray-800"
+              placeholder="••••••••"
+              className="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm outline-none focus:border-indigo-600 transition-all text-slate-800"
             />
           </div>
 
-          <button
+          <button 
             type="submit"
-            disabled={loading}
-            className="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-lg text-sm shadow-md transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+            disabled={isLoading}
+            className="w-full py-3.5 px-6 rounded-xl shadow-sm text-sm font-bold text-white bg-indigo-600 hover:bg-indigo-700 transition-all active:scale-95 disabled:opacity-70"
           >
-            {loading ? "Acessando..." : "Acessar Painel"}
-            {!loading && <ArrowRight className="w-4 h-4" />}
+            {isLoading ? 'CARREGANDO...' : 'ENTRAR NO SISTEMA'}
           </button>
         </form>
 
-        {/* Link para a página de escolha de plano */}
-        <p className="text-xs text-gray-500 mt-6 text-center">
+        <p className="text-center text-xs text-slate-500 mt-4">
           Não tem uma conta?{" "}
           <Link href="/pricing" className="text-indigo-600 font-semibold hover:underline">
             Criar conta grátis
           </Link>
         </p>
 
+        <p className="text-center text-xs text-slate-400">
+          &copy; 2026 Enem-Focus - Todos os direitos reservados.
+        </p>
       </div>
     </div>
   );
