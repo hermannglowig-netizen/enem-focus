@@ -2,6 +2,7 @@
 
 import { supabase } from '../../../lib/supabase';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { useState } from 'react';
 
 export default function LoginPage() {
@@ -14,13 +15,10 @@ export default function LoginPage() {
     // Log para depuração no console do navegador
     console.log("Tentando iniciar sessão...");
     
-    // Exibe o alerta que você solicitou para confirmar o clique
+    // Exibe o alerta para confirmar o clique
     alert("O botão foi clicado com sucesso!"); 
 
     try {
-      // Aqui você poderá adicionar a lógica real de auth futuramente:
-      // const { data, error } = await supabase.auth.signInWithPassword(...)
-      
       console.log("Navegando para a dashboard...");
       router.push('/dashboard');
     } catch (error) {
@@ -62,6 +60,14 @@ export default function LoginPage() {
             {isLoading ? 'CARREGANDO...' : 'ENTRAR NO SISTEMA'}
           </button>
         </div>
+
+        {/* Link direcionando para a nova tela de planos */}
+        <p className="text-center text-sm text-slate-500 mt-6">
+          Não tem uma conta?{" "}
+          <Link href="/pricing" className="text-indigo-600 font-semibold hover:underline">
+            Criar conta grátis
+          </Link>
+        </p>
 
         <p className="text-center text-xs text-slate-400 mt-6">
           &copy; 2026 Enem-Focus - Todos os direitos reservados.
